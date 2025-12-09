@@ -121,6 +121,7 @@ void main(uint3 vThreadID : SV_DispatchThreadID, uint3 vThreadIDInGroup : SV_Gro
 
     r0.y = asfloat(cb0[65].y);
     r0.z = (int)r0.x + 1;
+    r0.z = min((int)r0.z, 127);
 
     // uint sk_id = r0.z;
     // uint sk_val_id = r0.x;
