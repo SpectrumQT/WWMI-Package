@@ -15,11 +15,16 @@ RWBuffer<float4> CustomShapeKeyValuesRW : register(u5);
 [numthreads(1,1,1)]
 void main(uint3 ThreadId : SV_DispatchThreadID)
 {
-    // Expected user input for ShapeKeyId is in [0, 127] range
-    // Custom shape key values are stored in CustomShapeKeyValuesRW buffer with length of 32
+    // Expected user input for ShapeKeyId is in [0, 253] range
+    // When more than 1 shapekeys batch is used, we need to align value pos to 128
+    // It's required because 1 batch can fit only 127 shapekeys, while ShapeKeyOverrider reads aligned sequence of 128
+    // We don't want to confuse the user with gaps in ids, and don't want to complicate component math of ShapeKeyOverrider
+    // So we add +1 to offset per each batch before the one where ShapeKeyId belongs
+    uint container_offset = uint(ShapeKeyId / 127);
+    // Custom shape key values are stored in CustomShapeKeyValuesRW buffer with length of 32 float4 per batch
     // Each element of CustomShapeKeyValuesRW buffer stores values of 4 shape keys in its components
     // So, first of all, we need to calculate id of element and id of its component based on provided ShapeKeyId
-    uint shape_key_id = uint(ShapeKeyId);
+    uint shape_key_id = container_offset + uint(ShapeKeyId);
     uint shape_key_component_id = shape_key_id % uint(4);
     uint shape_key_element_id = (shape_key_id - shape_key_component_id) / uint(4);
     float shape_key_value = float(ShapeKeyValue);
