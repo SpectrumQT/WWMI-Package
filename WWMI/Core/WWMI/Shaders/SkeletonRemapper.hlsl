@@ -9,6 +9,7 @@ Texture1D<float4> IniParams : register(t120);
 
 #define VertexGroupCount IniParams[1].w
 #define RemapId IniParams[2].x
+#define RemapBoneCount IniParams[2].w
 
 
 #ifdef COMPUTE_SHADER
@@ -23,7 +24,7 @@ void main(uint3 ThreadId : SV_DispatchThreadID)
     }
 
     int vg_offset = vg_id * 3;
-    int map_offset = RemapId * 512;
+    int map_offset = RemapId * (int)RemapBoneCount;
     int remapped_vg_id = ForwardMap[map_offset+vg_id] * 3;
 
     RemappedSkeleton[vg_offset] = MergedSkeleton[remapped_vg_id];

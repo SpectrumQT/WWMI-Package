@@ -10,6 +10,7 @@ Texture1D<float4> IniParams : register(t120);
 #define VertexCount IniParams[0].y
 #define RemapId IniParams[2].x
 #define WeightsPerVertexCount (IniParams[2].y > 0 ? IniParams[2].y : 4)
+#define RemapBoneCount IniParams[2].w
 
 
 #ifdef COMPUTE_SHADER
@@ -23,8 +24,8 @@ void main(uint3 ThreadId : SV_DispatchThreadID)
         return;
     }
 
-    // Remap matrices are stored as concatenated array where each map is 512 values long
-    int map_offset = RemapId * 512;
+    // Remap matrices are stored as concatenated array where each map is RemapBoneCount values long
+    int map_offset = RemapId * (int)RemapBoneCount;
 
     // We're working with continuous arrays instead of structured buffers here
     // So the whole magic has to be done via direct index-based addressing:
